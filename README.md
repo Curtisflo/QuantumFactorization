@@ -1,6 +1,6 @@
 # Quantum Integer Factorization using Shor's Algorithm
 
-This Python implementation uses Qiskit and IBM Quantum computers to perform integer factorization using Shor's algorithm. The program is designed to factor semiprime numbers (numbers that are the product of exactly two prime numbers) using quantum computing resources.
+This Python implementation uses Qiskit and IBM Quantum computers to perform integer factorization using Shor's algorithm. The program is designed to factor semiprime numbers using quantum computing resources. arbitraryNShor supports custom semiprime inputs -- 77from43 is a hardcoded solution for calculating the prime factors of 77.
 
 ## Features
 
