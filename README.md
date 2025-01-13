@@ -84,3 +84,9 @@ The program provides:
   - Number of measurement shots
   - Circuit optimization level
 - Classical computation becomes burdensome for finding period of large numbers
+
+## Example Results
+
+![Multiple Inputs](./MultipleInputResults.png)
+![Input of 39993](./39993Results.png)
+![Input of 99993](./99993Results.png)
