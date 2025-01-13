@@ -58,7 +58,7 @@ The script generates two CSV files:
 NUMBERS_TO_TEST = [1048574]
 
 # Run the script
-python arbitraryN2-3.py
+python arbitraryNShor.py
 ```
 
 ## Output Format
