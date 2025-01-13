@@ -1,82 +1,86 @@
-# Quantum Factoring Implementation for N=77
+# Quantum Integer Factorization using Shor's Algorithm
 
-This repository contains a Python implementation of Shor's algorithm to factor N=77 using IBM's quantum computers via Qiskit. The implementation specifically uses a=43, which has a known period of 2 modulo 77, allowing for a simplified and more efficient circuit design.
+This Python implementation uses Qiskit and IBM Quantum computers to perform integer factorization using Shor's algorithm. The program is designed to factor semiprime numbers (numbers that are the product of exactly two prime numbers) using quantum computing resources.
 
-## Overview
+## Features
 
-The code demonstrates quantum factoring by:
-1. Implementing controlled modular multiplication
-2. Using the quantum Fourier transform
-3. Running on real IBM quantum hardware
-4. Finding the factors of 77 (7 × 11)
+- Implementation of Shor's period-finding algorithm using quantum circuits
+- Automatic quantum backend selection using IBM's least busy backend
+- Comprehensive measurement analysis and result processing
+- Detailed success probability calculations
+- Output generation in both CSV and human-readable formats
 
-## Requirements
+## Prerequisites
 
-- Python 3.7+
-- Qiskit
-- IBM Quantum account and API token
-- NumPy
-- Math library
+The following Python packages are required:
 
-## Installation
-
-1. Install the required packages:
 ```bash
-pip install qiskit qiskit-ibm-runtime numpy
+numpy
+pandas
+qiskit
+qiskit-ibm-runtime
+tabulate
 ```
 
-2. Set up your IBM Quantum account at [IBM Quantum](https://quantum-computing.ibm.com/)
+## Configuration
 
-3. Replace the API token in the code with your own token
+Before running the script, you need to:
 
-## Usage
+1. Obtain an IBM Quantum account and API token
+2. Replace the token in the script with your own IBM Quantum API token
+3. Configure the `NUMBERS_TO_TEST` list with the semiprime numbers you want to factor
 
-Run the script using Python:
-```bash
-python quantum_factoring.py
+## Key Components
+
+### Main Functions
+
+- `find_period(N, num_bits)`: Finds a value with a valid period modulo N and its transitions
+- `c_amod_N(a, N, num_bits, transitions, power)`: Creates controlled multiplication circuits
+- `qft_dagger(n)`: Implements the inverse quantum Fourier transform
+- `run_shors_experiment(N)`: Main function that executes the complete Shor's algorithm
+
+### Output Files
+
+The script generates two CSV files:
+- `shors_summary.csv`: Contains experiment summaries
+- `shors_detailed.csv`: Contains detailed measurement results
+
+## Hardware Limitations
+
+- The maximum size of numbers that can be factored depends on the available quantum hardware
+- Current maximum possible semiprime: 2,199,013,170,649
+- Qubit count scales with input number size
+
+## Example Usage
+
+```python
+# Set the numbers you want to factor
+NUMBERS_TO_TEST = [1048574]
+
+# Run the script
+python arbitraryN2-3.py
 ```
 
-The code will:
-1. Connect to IBM Quantum
-2. Find the least busy quantum computer
-3. Run the factoring circuit
-4. Display the top 10 measurement results with corresponding phases
-5. Analyze the results to find the factors of 77
+## Output Format
 
-## Technical Details
+The program provides:
+1. Real-time progress updates
+2. Period-finding details
+3. Top 10 measurement results for each run
+4. Success probability distribution
+5. Experimental summary table
+6. Detailed CSV output files
 
-### Circuit Implementation
-- Uses 4 counting qubits (N_COUNT = 4)
-- Uses 7 additional qubits for modular arithmetic
-- Implements controlled multiplication by 43 mod 77
-- Applies inverse QFT to the counting register
+## Implementation Notes
 
-### Key Features
-- Optimized for period 2 (since 43² ≡ 1 mod 77)
-- Direct implementation of controlled modular multiplication
-- Full state vector manipulation
-- Real quantum hardware execution
+- The implementation uses adaptive counting qubits based on input size
+- Uses 4096 shots per circuit execution
 
-### Output Format
-The code outputs:
-Top 10 measurement results, each showing:
-   - Quantum state (binary and decimal)
-   - Probability
-   - Phase
-   - Period analysis
-   - Factor checking
+## Performance Considerations
 
-## Example Output
-
-```
-===== Top 10 Measurement Results =====
-
-1. State |0000⟩ (0):
-   Probability: 0.2500
-   Phase: 0.0000
-   Fraction: 0/1
-   Period r=1:
-   ...
-
-[Additional results follow]
-```
+- Success probability varies based on:
+  - Input number size
+  - Quantum backend quality
+  - Number of measurement shots
+  - Circuit optimization level
+- Classical computation becomes burdensome for finding period of large numbers
