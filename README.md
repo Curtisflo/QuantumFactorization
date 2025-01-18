@@ -1,92 +1,54 @@
-# Quantum Integer Factorization using Shor's Algorithm
+# Semi-Classical Shor's Implementation
 
-This Python implementation uses Qiskit and IBM Quantum computers to perform integer factorization using Shor's algorithm. The program is designed to factor semiprime numbers using quantum computing resources. arbitraryNShor supports custom semiprime inputs -- 77from43 is a hardcoded solution for calculating the prime factors of 77.
-
-## Features
-
-- Implementation of Shor's period-finding algorithm using quantum circuits
-- Automatic quantum backend selection using IBM's least busy backend
-- Comprehensive measurement analysis and result processing
-- Detailed success probability calculations
-- Output generation in both CSV and human-readable formats
-
-## Prerequisites
-
-The following Python packages are required:
-
-```bash
-numpy
-pandas
-qiskit
-qiskit-ibm-runtime
-tabulate
-```
-
-## Configuration
-
-Before running the script, you need to:
-
-1. Obtain an IBM Quantum account and API token
-2. Replace the token in the script with your own IBM Quantum API token
-3. Configure the `NUMBERS_TO_TEST` list with the semiprime numbers you want to factor
-
-## Key Components
-
-### Main Functions
-
-- `find_period(N, num_bits)`: Finds a value with a valid period modulo N and its transitions
-- `c_amod_N(a, N, num_bits, transitions, power)`: Creates controlled multiplication circuits
-- `qft_dagger(n)`: Implements the inverse quantum Fourier transform
-- `run_shors_experiment(N)`: Main function that executes the complete Shor's algorithm
-
-### Output Files
-
-The script generates two CSV files:
-- `shors_summary.csv`: Contains experiment summaries
-- `shors_detailed.csv`: Contains detailed measurement results
-
-## Hardware Limitations
-
-- The maximum size of numbers that can be factored depends on the available quantum hardware
-- Current maximum possible semiprime: 2,199,013,170,649
-- Qubit count scales with input number size
-
-## Example Usage
-
-```python
-# Set the numbers you want to factor
-NUMBERS_TO_TEST = [1048574]
-
-# Run the script
-python arbitraryNShor.py
-```
-
-## Output Format
-
-The program provides:
-1. Real-time progress updates
-2. Period-finding details
-3. Top 10 measurement results for each run
-4. Success probability distribution
-5. Experimental summary table
-6. Detailed CSV output files
+A bare-bones implementation of Shor's algorithm using semi-classical quantum phase estimation. This approach trades off quantum resource requirements for classical post-processing by iteratively selecting coprime values to maximize factoring probability.
 
 ## Implementation Notes
 
-- The implementation uses adaptive counting qubits based on input size
-- Uses 4096 shots per circuit execution
+QPE circuit construction uses minimal qubits - just enough for phase estimation plus a single target qubit. Phase estimation precision is set to `log2(N) + 3` qubits. The inverse QFT is applied without approximation.
 
-## Performance Considerations
+Each QPE run tests a value 'a' coprime to N, looking for order-finding results that yield non-trivial factors. Key optimizations:
 
-- Success probability varies based on:
-  - Input number size
-  - Quantum backend quality
-  - Number of measurement shots
-  - Circuit optimization level
-- Classical computation becomes burdensome for finding period of large numbers
+- Initial 'a' values are drawn from small primes to minimize circuit depth
+- Subsequent iterations prioritize 'a' values that produced the highest total valid probability in previous runs
+- Success threshold of 15% total valid probability filters out noisy results
 
-## Example Results
+The full operator U = U^(2^k) is decomposed into controlled phase rotations using modular exponentiation, rather than constructing the full controlled multiplication circuit.
 
-![Multiple Inputs](./MultipleInputResults.png)
-![Input of 39993](./39993Results.png)
-![Input of 99993](./99993Results.png)
+## Usage
+
+```python
+shor = AdaptiveShor("ibm-token")
+factors = shor.factor(N)  # Returns tuple of factors if found
+```
+
+Sample output format:
+```
+Run 1: Testing a values [2, 3, 5, 7, 11, 17, 19]
+Testing a=2 with precision=12, shots=500
+...
+Found factors with a=11:
+  Phase: 0.334732
+  Period: 6
+  Factors: 13, 23
+  Total probability: 0.172
+```
+
+## Design Choices
+
+- Fixed 500 shots per circuit execution - balances between statistics and queue time
+- Maximum 5 iterations before giving up
+- Top 3 'a' values carried forward between iterations
+- Phase measurements converted to fractions using continuous fraction expansion with limit denominator N
+- Modular exponentiation handled classically
+
+## Dependencies
+
+- Qiskit
+- Qiskit IBM Runtime
+- NumPy
+
+## Known Limitations
+
+- Not optimized for transpilation to specific hardware topologies
+- No error mitigation strategies implemented
+- Period finding becomes unreliable above ~11 bit numbers on current hardware
